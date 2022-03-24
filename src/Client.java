@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -19,7 +18,7 @@ public class Client {
         
         try {
             socket = new Socket(ip,port);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Client failed to connect");
             System.exit(0);
         }
@@ -28,25 +27,13 @@ public class Client {
         try {
             Scanner tgb = new Scanner(System.in);
             PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            //ListenerThread in = new ListenerThread(new BufferedReader(new InputStreamReader(socket.getInputStream()
-            // )));
-            //Thread listener = new Thread(in);
-            //listener.start();
+            ListenerThread in = new ListenerThread(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+            Thread listener = new Thread(in);
+            listener.start();
             boolean run = true;
             while (run) {
-                String msg = in.readLine();
-                System.out.println(msg);
-                msg = in.readLine();
-                System.out.println(msg);
-                msg = tgb.nextLine();
-                if (msg.equals("quit")) {
-                    run = false;
-                    out.println(msg);
-                } else {
-                    out.println("Client: " + msg);
-                }
+                String msg = tgb.nextLine();
+                out.println(msg);
             }
 
             out.close();
